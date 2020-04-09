@@ -26,15 +26,15 @@ namespace GameBundle {
             if (!bundleDir.Exists)
                 bundleDir.Create();
 
-            if (options.BundleWindows) {
+            if (!options.NoWindows) {
                 Console.WriteLine("Bundling for windows");
                 Publish(options, proj, $"{bundleDir}/win", options.Publish32Bit ? "win-x86" : "win-x64");
             }
-            if (options.BundleLinux) {
+            if (!options.NoLinux) {
                 Console.WriteLine("Bundling for linux");
                 Publish(options, proj, $"{bundleDir}/linux", "linux-x64");
             }
-            if (options.BundleMac) {
+            if (!options.NoMac) {
                 Console.WriteLine("Bundling for mac");
                 Publish(options, proj, $"{bundleDir}/mac", "osx-x64");
             }
@@ -44,7 +44,7 @@ namespace GameBundle {
         }
 
         private static void Publish(Options options, FileInfo proj, string path, string rid) {
-            RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} /p:PublishTrimmed={options.Trim}");
+            RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={!options.NoTrim}");
 
             // Run beauty
             var excludes = string.Empty;

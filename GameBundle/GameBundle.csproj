@@ -10,6 +10,7 @@
         <PackageProjectUrl>https://github.com/Ellpeck/GameBundle</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Ellpeck/GameBundle</RepositoryUrl>
         <PackageLicenseUrl>https://github.com/Ellpeck/GameBundle/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/Ellpeck/GameBundle/master/Logo.png</PackageIconUrl>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gamebundle</ToolCommandName>
         <VersionPrefix>0.0.1</VersionPrefix>
