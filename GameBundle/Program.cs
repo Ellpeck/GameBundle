@@ -15,25 +15,31 @@ namespace GameBundle {
             if (RunProcess(options, "dotnet", "tool install nulastudio.ncbeauty -g") < 0)
                 return -1;
 
-            var proj = new FileInfo(options.SourceFile);
-            if (!proj.Exists) {
-                Console.WriteLine("Project file not found at " + proj.FullName);
+            var proj = GetProjectFile(options);
+            if (proj == null || !proj.Exists) {
+                Console.WriteLine("Project file not found");
                 return -1;
             }
-            if (options.Verbose)
-                Console.WriteLine("Found project file at " + proj.FullName);
+            Console.WriteLine("Bundling project " + proj.FullName);
 
-            var bundleDir = new DirectoryInfo(Path.Combine(options.OutputDirectory, "Bundled"));
+            var bundleDir = new DirectoryInfo(options.OutputDirectory);
             if (!bundleDir.Exists)
                 bundleDir.Create();
 
-            if (options.BundleWindows)
+            if (options.BundleWindows) {
+                Console.WriteLine("Bundling for windows");
                 Publish(options, proj, $"{bundleDir}/win", options.Publish32Bit ? "win-x86" : "win-x64");
-            if (options.BundleLinux)
+            }
+            if (options.BundleLinux) {
+                Console.WriteLine("Bundling for linux");
                 Publish(options, proj, $"{bundleDir}/linux", "linux-x64");
-            if (options.BundleMac)
+            }
+            if (options.BundleMac) {
+                Console.WriteLine("Bundling for mac");
                 Publish(options, proj, $"{bundleDir}/mac", "osx-x64");
-            
+            }
+
+            Console.WriteLine("Done");
             return 0;
         }
 
@@ -55,10 +61,26 @@ namespace GameBundle {
 
         private static int RunProcess(Options options, string program, string args) {
             if (options.Verbose)
-                Console.WriteLine($"$ {program} {args}");
-            var process = Process.Start(program, args);
+                Console.WriteLine($"> {program} {args}");
+            var info = new ProcessStartInfo(program, args);
+            if (!options.Verbose)
+                info.CreateNoWindow = true;
+            var process = Process.Start(info);
             process.WaitForExit();
+            if (options.Verbose)
+                Console.WriteLine($"{program} finished with exit code {process.ExitCode}");
             return process.ExitCode;
+        }
+
+        private static FileInfo GetProjectFile(Options options) {
+            if (!string.IsNullOrEmpty(options.SourceFile))
+                return new FileInfo(options.SourceFile);
+            var dir = new DirectoryInfo(Environment.CurrentDirectory);
+            foreach (var file in dir.EnumerateFiles()) {
+                if (Path.GetExtension(file.FullName).Contains("proj"))
+                    return file;
+            }
+            return null;
         }
 
     }
