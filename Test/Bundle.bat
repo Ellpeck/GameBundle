@@ -1,0 +1,1 @@
+"../GameBundle/bin/Debug/netcoreapp3.1/GameBundle.exe" -s Test.csproj -o bin -v
