@@ -1,0 +1,5 @@
+<Project>
+    <Target Name="GameBundle" AfterTargets="AfterBuild">
+        <Exec Command="$(MSBuildThisFileDirectory)/../tools/GameBundle.exe"/>
+    </Target>
+</Project>
