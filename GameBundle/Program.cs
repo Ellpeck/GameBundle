@@ -49,7 +49,7 @@ namespace GameBundle {
             // Run beauty
             var excludes = string.Empty;
             if (options.ExcludedFiles.Length > 0)
-                excludes = "excludes=" + string.Join(";", options.ExcludedFiles);
+                excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
             var log = options.Verbose ? "Detail" : "Error";
             RunProcess(options, "ncbeauty", $"--loglevel={log} --force=True {path} Lib {excludes}");
 
