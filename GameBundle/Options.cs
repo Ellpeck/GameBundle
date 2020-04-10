@@ -11,12 +11,12 @@ namespace GameBundle {
         [Option('v', "verbose")]
         public bool Verbose { get; set; }
 
-        [Option('w', "no-win", HelpText = "Skip bundling for windows")]
-        public bool NoWindows { get; set; }
-        [Option('l', "no-linux", HelpText = "Skip bundling for linux")]
-        public bool NoLinux { get; set; }
-        [Option('m', "no-mac", HelpText = "Skip bundling for mac")]
-        public bool NoMac { get; set; }
+        [Option('w', "win", HelpText = "Bundle for windows")]
+        public bool BuildWindows { get; set; }
+        [Option('l', "linux", HelpText = "Bundle for linux")]
+        public bool BuildLinux { get; set; }
+        [Option('m', "mac", HelpText = "Bundle for mac")]
+        public bool BuildMac { get; set; }
 
         [Option('e', "exclude", Default = new[] {"openal", "oal", "sdl2", "SDL2"}, HelpText = "Files like unmanaged libraries that should not be moved to the /Lib folder")]
         public string[] ExcludedFiles { get; set; }

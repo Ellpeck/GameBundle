@@ -10,9 +10,9 @@ dotnet tool install --global GameBundle
 # Using
 By default, GameBundle builds the `.csproj` file that it finds in the directory that it is run from. The bundled outputs go into `bin/Bundled` by default.
 
-To build and bundle your app for Linux, Windows and Mac, all you have to do is run the following command from the directory that contains your project file:
+To build and bundle your app for Windows, Linux and Mac, all you have to do is run the following command from the directory that contains your project file:
 ```
-gamebundle
+gamebundle -wlm
 ```
 
 GameBundle will then build a self-contained release of your application for each system using `dotnet publish` and clean up the output directory using [NetCoreBeauty](https://github.com/nulastudio/NetCoreBeauty) by moving most of the libraries into a `Lib` subdirectory.

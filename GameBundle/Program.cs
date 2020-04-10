@@ -26,15 +26,15 @@ namespace GameBundle {
             if (!bundleDir.Exists)
                 bundleDir.Create();
 
-            if (!options.NoWindows) {
+            if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
                 Publish(options, proj, $"{bundleDir}/win", options.Publish32Bit ? "win-x86" : "win-x64");
             }
-            if (!options.NoLinux) {
+            if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
                 Publish(options, proj, $"{bundleDir}/linux", "linux-x64");
             }
-            if (!options.NoMac) {
+            if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
                 Publish(options, proj, $"{bundleDir}/mac", "osx-x64");
             }
