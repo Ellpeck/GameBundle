@@ -24,7 +24,7 @@ gamebundle --help
 ```
 
 # Future features
-In the future, GameBundle plans to include the following features
+In the future, GameBundle plans to include the following features:
 - An option to create a `.app` archive structure file for the Mac build automatically
 - An option to create an installer for Windows
 - An option to create a flatpak (or similar) installer for Linux
