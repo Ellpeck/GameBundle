@@ -18,7 +18,7 @@ namespace GameBundle {
         [Option('m', "mac", HelpText = "Bundle for mac")]
         public bool BuildMac { get; set; }
 
-        [Option('e', "exclude", Default = new[] {"openal", "oal", "sdl2", "SDL2"}, HelpText = "Files like unmanaged libraries that should not be moved to the /Lib folder")]
+        [Option('e', "exclude", Default = new[] {"openal", "oal", "sdl2", "SDL2"}, HelpText = "Files like unmanaged libraries that should not be moved to the library folder")]
         public string[] ExcludedFiles { get; set; }
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
         public bool Publish32Bit { get; set; }
@@ -26,6 +26,8 @@ namespace GameBundle {
         public bool NoTrim { get; set; }
         [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]
         public string BuildConfig { get; set; }
+        [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
+        public string LibFolder { get; set; }
 
     }
 }
