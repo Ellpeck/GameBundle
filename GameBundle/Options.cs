@@ -20,7 +20,7 @@ namespace GameBundle {
         public bool BuildMac { get; set; }
 
         [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
-        public string[] ExcludedFiles { get; set; }
+        public IEnumerable<string> ExcludedFiles { get; set; }
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
         public bool Publish32Bit { get; set; }
         [Option('t', "no-trim", HelpText = "Skip trimming the application when publishing")]

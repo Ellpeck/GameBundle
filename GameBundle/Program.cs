@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
 
@@ -47,11 +48,9 @@ namespace GameBundle {
             RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={!options.NoTrim}");
 
             // Run beauty
-            var excludes = string.Empty;
-            if (options.ExcludedFiles.Length > 0)
-                excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
+            var excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
             var log = options.Verbose ? "Detail" : "Error";
-            RunProcess(options, "ncbeauty", $"--loglevel={log} --force=True {path} {options.LibFolder} {excludes}");
+            RunProcess(options, "ncbeauty", $"--loglevel={log} --force=True {path} {options.LibFolder} --excludes={excludes}");
 
             // Remove the beauty file since it's just a marker
             var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
