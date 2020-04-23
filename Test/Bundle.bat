@@ -1,1 +1,1 @@
-"../GameBundle/bin/Debug/netcoreapp3.1/GameBundle.exe" -wlm -s Test.csproj -o bin/Bundled -v
+"../GameBundle/bin/Debug/netcoreapp3.1/GameBundle.exe" -wlm -s Test.csproj -o bin/Bundled -v -b

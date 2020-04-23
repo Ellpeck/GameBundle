@@ -19,6 +19,11 @@ namespace GameBundle {
         [Option('m', "mac", HelpText = "Bundle for mac")]
         public bool BuildMac { get; set; }
 
+        [Option('b', "mac-bundle", HelpText = "Create an app bundle for mac")]
+        public bool MacBundle { get; set; }
+        [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
+        public IEnumerable<string> MacBundleResources { get; set; }
+
         [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
         public IEnumerable<string> ExcludedFiles { get; set; }
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]

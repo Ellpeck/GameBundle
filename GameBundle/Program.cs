@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -37,7 +38,10 @@ namespace GameBundle {
             }
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
-                Publish(options, proj, $"{bundleDir}/mac", "osx-x64");
+                var dir = $"{bundleDir}/mac";
+                Publish(options, proj, dir, "osx-x64");
+                if (options.MacBundle)
+                    CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
             }
 
             Console.WriteLine("Done");
@@ -80,6 +84,33 @@ namespace GameBundle {
                     return file;
             }
             return null;
+        }
+
+        private static void CreateMacBundle(Options options, DirectoryInfo dir, string proj) {
+            var app = dir.CreateSubdirectory($"{Path.GetFileNameWithoutExtension(proj)}.app");
+            var contents = app.CreateSubdirectory("Contents");
+            var resources = contents.CreateSubdirectory("Resources");
+            var macOs = contents.CreateSubdirectory("MacOS");
+            var resRegex = GlobRegex(options.MacBundleResources);
+            foreach (var file in dir.GetFiles()) {
+                var destDir = resRegex.IsMatch(file.Name) ? resources : macOs;
+                if (file.Name.EndsWith("plist"))
+                    destDir = app;
+                file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
+            }
+            foreach (var sub in dir.GetDirectories()) {
+                if (sub.Name == app.Name)
+                    continue;
+                var destDir = resRegex.IsMatch(sub.Name) ? resources : macOs;
+                var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
+                if (dest.Exists)
+                    dest.Delete(true);
+                sub.MoveTo(dest.FullName);
+            }
+        }
+
+        private static Regex GlobRegex(IEnumerable<string> strings) {
+            return new Regex('(' + string.Join("|", strings.Select(s => s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."))) + ')');
         }
 
     }
