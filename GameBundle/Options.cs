@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using CommandLine;
 
@@ -18,7 +19,7 @@ namespace GameBundle {
         [Option('m', "mac", HelpText = "Bundle for mac")]
         public bool BuildMac { get; set; }
 
-        [Option('e', "exclude", Default = new[] {"openal", "oal", "sdl2", "SDL2"}, HelpText = "Files like unmanaged libraries that should not be moved to the library folder")]
+        [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
         public string[] ExcludedFiles { get; set; }
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
         public bool Publish32Bit { get; set; }

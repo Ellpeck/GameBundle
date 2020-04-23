@@ -11,7 +11,8 @@
         <PackageReference Include="Contentless" Version="2.0.*" />
         <PackageReference Include="MLEM.Startup" Version="3.2.*" />
         <PackageReference Include="MonoGame.Content.Builder" Version="3.7.*" />
-        <PackageReference Include="MonoGame.Framework.DesktopGL.Core" Version="3.8.*" />
+        <!--http://teamcity.monogame.net/guestAuth/app/nuget/v1/FeedService.svc/-->
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1231-develop" />
     </ItemGroup>
 
     <ItemGroup>
