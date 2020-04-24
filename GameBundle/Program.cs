@@ -78,7 +78,7 @@ namespace GameBundle {
         private static FileInfo GetProjectFile(Options options) {
             if (!string.IsNullOrEmpty(options.SourceFile))
                 return new FileInfo(options.SourceFile);
-            var dir = new DirectoryInfo(Environment.CurrentDirectory);
+            var dir = new DirectoryInfo(".");
             foreach (var file in dir.EnumerateFiles()) {
                 if (Path.GetExtension(file.FullName).Contains("proj"))
                     return file;
