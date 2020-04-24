@@ -21,9 +21,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include=".config\dotnet-tools.json">
+      <None Include=".config\dotnet-tools.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </None>
     </ItemGroup>
 
 </Project>
