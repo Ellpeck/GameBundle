@@ -14,7 +14,8 @@ namespace GameBundle {
         }
 
         private static int Run(Options options) {
-            if (RunProcess(options, "dotnet", "tool install nulastudio.ncbeauty -g") < 0)
+            // make sure all of the required tools are installed
+            if (RunProcess(options, "dotnet", "tool restore", AppDomain.CurrentDomain.BaseDirectory) != 0)
                 return -1;
 
             var proj = GetProjectFile(options);
@@ -30,15 +31,15 @@ namespace GameBundle {
 
             if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
-                Publish(options, proj, $"{bundleDir}/win", options.Publish32Bit ? "win-x86" : "win-x64");
+                Publish(options, proj, $"{bundleDir.FullName}/win", options.Publish32Bit ? "win-x86" : "win-x64");
             }
             if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
-                Publish(options, proj, $"{bundleDir}/linux", "linux-x64");
+                Publish(options, proj, $"{bundleDir.FullName}/linux", "linux-x64");
             }
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
-                var dir = $"{bundleDir}/mac";
+                var dir = $"{bundleDir.FullName}/mac";
                 Publish(options, proj, dir, "osx-x64");
                 if (options.MacBundle)
                     CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
@@ -54,7 +55,7 @@ namespace GameBundle {
             // Run beauty
             var excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
             var log = options.Verbose ? "Detail" : "Error";
-            RunProcess(options, "ncbeauty", $"--loglevel={log} --force=True {path} {options.LibFolder} --excludes={excludes}");
+            RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True {path} {options.LibFolder} {excludes}", AppDomain.CurrentDomain.BaseDirectory);
 
             // Remove the beauty file since it's just a marker
             var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
@@ -62,10 +63,10 @@ namespace GameBundle {
                 beautyFile.Delete();
         }
 
-        private static int RunProcess(Options options, string program, string args) {
+        private static int RunProcess(Options options, string program, string args, string workingDir = "") {
             if (options.Verbose)
                 Console.WriteLine($"> {program} {args}");
-            var info = new ProcessStartInfo(program, args);
+            var info = new ProcessStartInfo(program, args) {WorkingDirectory = workingDir};
             if (!options.Verbose)
                 info.CreateNoWindow = true;
             var process = Process.Start(info);
