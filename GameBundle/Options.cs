@@ -28,8 +28,8 @@ namespace GameBundle {
         public IEnumerable<string> ExcludedFiles { get; set; }
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
         public bool Publish32Bit { get; set; }
-        [Option('t', "no-trim", HelpText = "Skip trimming the application when publishing")]
-        public bool NoTrim { get; set; }
+        [Option('t', "trim", HelpText = "Trim the application when publishing")]
+        public bool Trim { get; set; }
         [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]
         public string BuildConfig { get; set; }
         [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]

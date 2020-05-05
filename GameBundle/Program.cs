@@ -50,7 +50,7 @@ namespace GameBundle {
         }
 
         private static void Publish(Options options, FileInfo proj, string path, string rid) {
-            RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={!options.NoTrim}");
+            RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim}");
 
             // Run beauty
             var excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
