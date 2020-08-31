@@ -31,16 +31,22 @@ namespace GameBundle {
 
             if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
-                Publish(options, proj, $"{bundleDir.FullName}/win", options.Publish32Bit ? "win-x86" : "win-x64");
+                var res = Publish(options, proj, $"{bundleDir.FullName}/win", options.Publish32Bit ? "win-x86" : "win-x64");
+                if (res != 0)
+                    return res;
             }
             if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
-                Publish(options, proj, $"{bundleDir.FullName}/linux", "linux-x64");
+                var res = Publish(options, proj, $"{bundleDir.FullName}/linux", "linux-x64");
+                if (res != 0)
+                    return res;
             }
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
                 var dir = $"{bundleDir.FullName}/mac";
-                Publish(options, proj, dir, "osx-x64");
+                var res = Publish(options, proj, dir, "osx-x64");
+                if (res != 0)
+                    return res;
                 if (options.MacBundle)
                     CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
             }
@@ -49,18 +55,23 @@ namespace GameBundle {
             return 0;
         }
 
-        private static void Publish(Options options, FileInfo proj, string path, string rid) {
-            RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim}");
+        private static int Publish(Options options, FileInfo proj, string path, string rid) {
+            var publishResult = RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim}");
+            if (publishResult != 0)
+                return publishResult;
 
             // Run beauty
             var excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
             var log = options.Verbose ? "Detail" : "Error";
-            RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True {path} {options.LibFolder} {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+            var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True {path} {options.LibFolder} {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+            if (beautyResult != 0)
+                return beautyResult;
 
             // Remove the beauty file since it's just a marker
             var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
             if (beautyFile.Exists)
                 beautyFile.Delete();
+            return 0;
         }
 
         private static int RunProcess(Options options, string program, string args, string workingDir = "") {

@@ -13,7 +13,7 @@
         <PackageIconUrl>https://raw.githubusercontent.com/Ellpeck/GameBundle/master/Logo.png</PackageIconUrl>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gamebundle</ToolCommandName>
-        <VersionPrefix>1.2.1</VersionPrefix>
+        <VersionPrefix>1.2.2</VersionPrefix>
     </PropertyGroup>
 
     <ItemGroup>
