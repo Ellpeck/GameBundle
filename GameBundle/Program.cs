@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
@@ -25,37 +26,40 @@ namespace GameBundle {
             }
             Console.WriteLine("Bundling project " + proj.FullName);
 
-            var bundleDir = new DirectoryInfo(options.OutputDirectory);
-            if (!bundleDir.Exists)
-                bundleDir.Create();
-
+            var builtAnything = false;
             if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
-                var res = Publish(options, proj, $"{bundleDir.FullName}/win", options.Publish32Bit ? "win-x86" : "win-x64");
+                var res = Publish(options, proj, GetBuildDir(options, proj, "win"), options.Publish32Bit ? "win-x86" : "win-x64");
                 if (res != 0)
                     return res;
+                builtAnything = true;
             }
             if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
-                var res = Publish(options, proj, $"{bundleDir.FullName}/linux", "linux-x64");
+                var res = Publish(options, proj, GetBuildDir(options, proj, "linux"), "linux-x64");
                 if (res != 0)
                     return res;
+                builtAnything = true;
             }
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
-                var dir = $"{bundleDir.FullName}/mac";
-                var res = Publish(options, proj, dir, "osx-x64");
+                var dir = GetBuildDir(options, proj, "mac");
+                var res = Publish(options, proj, dir, "osx-x64", () => {
+                    if (options.MacBundle)
+                        CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
+                });
                 if (res != 0)
                     return res;
-                if (options.MacBundle)
-                    CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
+                builtAnything = true;
             }
 
+            if (!builtAnything)
+                Console.WriteLine("No build took place. Supply -w, -l or -m arguments or see available arguments using --help.");
             Console.WriteLine("Done");
             return 0;
         }
 
-        private static int Publish(Options options, FileInfo proj, string path, string rid) {
+        private static int Publish(Options options, FileInfo proj, string path, string rid, Action additionalAction = null) {
             var publishResult = RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim}");
             if (publishResult != 0)
                 return publishResult;
@@ -71,6 +75,17 @@ namespace GameBundle {
             var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
             if (beautyFile.Exists)
                 beautyFile.Delete();
+
+            // Run any additional actions like creating the mac bundle
+            additionalAction?.Invoke();
+
+            // Zip the output if required
+            if (options.Zip) {
+                var zipLocation = Path.Combine(Directory.GetParent(path).FullName, Path.GetFileName(path) + ".zip");
+                File.Delete(zipLocation);
+                ZipFile.CreateFromDirectory(path, zipLocation, CompressionLevel.Optimal, true);
+                Directory.Delete(path, true);
+            }
             return 0;
         }
 
@@ -123,6 +138,13 @@ namespace GameBundle {
 
         private static Regex GlobRegex(IEnumerable<string> strings) {
             return new Regex('(' + string.Join("|", strings.Select(s => s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."))) + ')');
+        }
+
+        private static string GetBuildDir(Options options, FileInfo proj, string osName) {
+            var dir = Path.GetFullPath(options.OutputDirectory);
+            if (options.NameBuilds)
+                return $"{dir}/{Path.GetFileNameWithoutExtension(proj.Name)}-{osName}";
+            return $"{dir}/{osName}";
         }
 
     }

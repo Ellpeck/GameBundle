@@ -23,6 +23,8 @@ namespace GameBundle {
         public bool MacBundle { get; set; }
         [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
         public IEnumerable<string> MacBundleResources { get; set; }
+        [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
+        public bool Zip { get; set; }
 
         [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
         public IEnumerable<string> ExcludedFiles { get; set; }
@@ -34,6 +36,8 @@ namespace GameBundle {
         public string BuildConfig { get; set; }
         [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
         public string LibFolder { get; set; }
+        [Option('n', "name-builds", HelpText = "Name the build output directories by the project's name")]
+        public bool NameBuilds { get; set; }
 
     }
 }
