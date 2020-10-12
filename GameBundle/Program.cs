@@ -118,9 +118,9 @@ namespace GameBundle {
             var contents = app.CreateSubdirectory("Contents");
             var resources = contents.CreateSubdirectory("Resources");
             var macOs = contents.CreateSubdirectory("MacOS");
-            var resRegex = GlobRegex(options.MacBundleResources);
+            var resRegex = options.MacBundleResources.Select(GlobRegex).ToArray();
             foreach (var file in dir.GetFiles()) {
-                var destDir = resRegex.IsMatch(file.Name) ? resources : macOs;
+                var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
                 if (file.Name.EndsWith("plist"))
                     destDir = app;
                 file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
@@ -128,7 +128,7 @@ namespace GameBundle {
             foreach (var sub in dir.GetDirectories()) {
                 if (sub.Name == app.Name)
                     continue;
-                var destDir = resRegex.IsMatch(sub.Name) ? resources : macOs;
+                var destDir = resRegex.Any(r => r.IsMatch(sub.Name)) ? resources : macOs;
                 var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
                 if (dest.Exists)
                     dest.Delete(true);
@@ -136,8 +136,8 @@ namespace GameBundle {
             }
         }
 
-        private static Regex GlobRegex(IEnumerable<string> strings) {
-            return new Regex('(' + string.Join("|", strings.Select(s => s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."))) + ')');
+        private static Regex GlobRegex(string s) {
+            return new Regex(s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."));
         }
 
         private static string GetBuildDir(Options options, FileInfo proj, string osName) {
