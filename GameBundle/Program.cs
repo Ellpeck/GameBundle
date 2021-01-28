@@ -11,7 +11,10 @@ namespace GameBundle {
     internal static class Program {
 
         private static int Main(string[] args) {
-            return Parser.Default.ParseArguments<Options>(args).MapResult(Run, _ => -1);
+            return new Parser(c => {
+                c.HelpWriter = Console.Error;
+                c.EnableDashDash = true;
+            }).ParseArguments<Options>(args).MapResult(Run, _ => -1);
         }
 
         private static int Run(Options options) {
@@ -60,7 +63,7 @@ namespace GameBundle {
         }
 
         private static int Publish(Options options, FileInfo proj, string path, string rid, Action additionalAction = null) {
-            var publishResult = RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim}");
+            var publishResult = RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
             if (publishResult != 0)
                 return publishResult;
 
