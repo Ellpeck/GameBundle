@@ -1,4 +1,4 @@
-![The GameBundle logo](Logo.png)
+![The GameBundle logo](https://raw.githubusercontent.com/Ellpeck/GameBundle/master/Logo.png)
 
 **GameBundle** is a tool to package MonoGame and other .NET Core applications into several distributable formats.
 
