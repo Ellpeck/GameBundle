@@ -2,7 +2,7 @@
 
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>netcoreapp3.1</TargetFramework>
+        <TargetFramework>net5.0</TargetFramework>
 
         <Authors>Ellpeck</Authors>
         <Description>A tool to package MonoGame and other .NET Core applications into several distributable formats</Description>
