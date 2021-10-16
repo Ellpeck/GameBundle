@@ -68,16 +68,18 @@ namespace GameBundle {
                 return publishResult;
 
             // Run beauty
-            var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
-            var log = options.Verbose ? "Detail" : "Error";
-            var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{path}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
-            if (beautyResult != 0)
-                return beautyResult;
+            if (!options.SkipLib) {
+                var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
+                var log = options.Verbose ? "Detail" : "Error";
+                var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{path}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+                if (beautyResult != 0)
+                    return beautyResult;
 
-            // Remove the beauty file since it's just a marker
-            var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
-            if (beautyFile.Exists)
-                beautyFile.Delete();
+                // Remove the beauty file since it's just a marker
+                var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
+                if (beautyFile.Exists)
+                    beautyFile.Delete();
+            }
 
             // Run any additional actions like creating the mac bundle
             additionalAction?.Invoke();

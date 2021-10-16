@@ -11,34 +11,40 @@ namespace GameBundle {
         public string OutputDirectory { get; set; }
         [Option('v', "verbose")]
         public bool Verbose { get; set; }
+
         [Option('w', "win", HelpText = "Bundle for windows")]
         public bool BuildWindows { get; set; }
         [Option('l', "linux", HelpText = "Bundle for linux")]
         public bool BuildLinux { get; set; }
         [Option('m', "mac", HelpText = "Bundle for mac")]
         public bool BuildMac { get; set; }
+        [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
+        public bool Zip { get; set; }
+
         [Option('b', "mac-bundle", HelpText = "Create an app bundle for mac")]
         public bool MacBundle { get; set; }
         [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
         public IEnumerable<string> MacBundleResources { get; set; }
         [Option("mac-bundle-ignore", Default = new string[0], HelpText = "When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder")]
         public IEnumerable<string> MacBundleIgnore { get; set; }
-        [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
-        public bool Zip { get; set; }
+
+        [Option("skip-lib", HelpText = "When bundling, skip beautifying the output by moving files to the library folder")]
+        public bool SkipLib { get; set; }
         [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
         public IEnumerable<string> ExcludedFiles { get; set; }
+        [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
+        public string LibFolder { get; set; }
+
         [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
         public bool Publish32Bit { get; set; }
         [Option('t', "trim", HelpText = "Trim the application when publishing")]
         public bool Trim { get; set; }
         [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]
         public string BuildConfig { get; set; }
-        [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
-        public string LibFolder { get; set; }
-        [Option('n', "name-builds", HelpText = "Name the build output directories by the project's name")]
-        public bool NameBuilds { get; set; }
         [Option('a', "build-args", HelpText = "Additional arguments that should be passed to the dotnet publish command")]
         public string BuildArgs { get; set; }
+        [Option('n', "name-builds", HelpText = "Name the build output directories by the project's name")]
+        public bool NameBuilds { get; set; }
 
     }
 }
