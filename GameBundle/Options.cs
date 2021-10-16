@@ -37,8 +37,6 @@ namespace GameBundle {
         public string LibFolder { get; set; }
         [Option('n', "name-builds", HelpText = "Name the build output directories by the project's name")]
         public bool NameBuilds { get; set; }
-        [Option('d', "display-name", HelpText = "The name that should be used for named builds and the mac app bundle instead of the project's name")]
-        public string DisplayName { get; set; }
         [Option('a', "build-args", HelpText = "Additional arguments that should be passed to the dotnet publish command")]
         public string BuildArgs { get; set; }
 

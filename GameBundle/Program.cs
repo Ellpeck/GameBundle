@@ -117,13 +117,29 @@ namespace GameBundle {
         }
 
         private static void CreateMacBundle(Options options, DirectoryInfo dir, FileInfo proj) {
-            var app = dir.CreateSubdirectory($"{GetDisplayName(options, proj)}.app");
+            var files = dir.GetFiles();
+            var dirs = dir.GetDirectories();
+
+            // figure out the app name, which should match the binary (and dll) name
+            var appName = Path.GetFileNameWithoutExtension(proj.Name);
+            foreach (var file in files) {
+                if (!string.IsNullOrEmpty(file.Extension))
+                    continue;
+                if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == file.Name)) {
+                    Console.WriteLine($"Choosing app name {file.Name} from binary");
+                    appName = file.Name;
+                    break;
+                }
+            }
+
+            var app = dir.CreateSubdirectory($"{appName}.app");
             var contents = app.CreateSubdirectory("Contents");
             var resources = contents.CreateSubdirectory("Resources");
             var macOs = contents.CreateSubdirectory("MacOS");
             var resRegex = options.MacBundleResources.Select(GlobRegex).ToArray();
             var ignoreRegex = options.MacBundleIgnore.Select(GlobRegex).ToArray();
-            foreach (var file in dir.GetFiles()) {
+
+            foreach (var file in files) {
                 if (ignoreRegex.Any(r => r.IsMatch(file.Name)))
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
@@ -131,8 +147,8 @@ namespace GameBundle {
                     destDir = app;
                 file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
             }
-            foreach (var sub in dir.GetDirectories()) {
-                if (sub.Name == app.Name || ignoreRegex.Any(r => r.IsMatch(sub.Name)))
+            foreach (var sub in dirs) {
+                if (ignoreRegex.Any(r => r.IsMatch(sub.Name)))
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(sub.Name)) ? resources : macOs;
                 var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
@@ -140,6 +156,7 @@ namespace GameBundle {
                     dest.Delete(true);
                 sub.MoveTo(dest.FullName);
             }
+            File.WriteAllText(Path.Combine(contents.FullName, "PkgInfo"), "APPL????");
         }
 
         private static Regex GlobRegex(string s) {
@@ -149,12 +166,8 @@ namespace GameBundle {
         private static string GetBuildDir(Options options, FileInfo proj, string osName) {
             var dir = Path.GetFullPath(options.OutputDirectory);
             if (options.NameBuilds)
-                return $"{dir}/{GetDisplayName(options, proj)}-{osName}";
+                return $"{dir}/{Path.GetFileNameWithoutExtension(proj.Name)}-{osName}";
             return $"{dir}/{osName}";
-        }
-
-        private static string GetDisplayName(Options options, FileInfo proj) {
-            return string.IsNullOrEmpty(options.DisplayName) ? Path.GetFileNameWithoutExtension(proj.Name) : options.DisplayName;
         }
 
     }
