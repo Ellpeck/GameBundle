@@ -21,6 +21,8 @@ namespace GameBundle {
         public bool MacBundle { get; set; }
         [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
         public IEnumerable<string> MacBundleResources { get; set; }
+        [Option("mac-bundle-ignore", Default = new string[0], HelpText = "When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder")]
+        public IEnumerable<string> MacBundleIgnore { get; set; }
         [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
         public bool Zip { get; set; }
         [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
@@ -35,7 +37,7 @@ namespace GameBundle {
         public string LibFolder { get; set; }
         [Option('n', "name-builds", HelpText = "Name the build output directories by the project's name")]
         public bool NameBuilds { get; set; }
-        [Option('d', "display-name", HelpText = "The name that should be used for --name-builds and the app bundle instead of the project's name")]
+        [Option('d', "display-name", HelpText = "The name that should be used for named builds and the mac app bundle instead of the project's name")]
         public string DisplayName { get; set; }
         [Option('a', "build-args", HelpText = "Additional arguments that should be passed to the dotnet publish command")]
         public string BuildArgs { get; set; }

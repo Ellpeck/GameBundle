@@ -68,9 +68,9 @@ namespace GameBundle {
                 return publishResult;
 
             // Run beauty
-            var excludes = '"' + string.Join(";", options.ExcludedFiles) + '"';
+            var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
             var log = options.Verbose ? "Detail" : "Error";
-            var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True {path} {options.LibFolder} {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+            var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{path}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
             if (beautyResult != 0)
                 return beautyResult;
 
@@ -122,14 +122,17 @@ namespace GameBundle {
             var resources = contents.CreateSubdirectory("Resources");
             var macOs = contents.CreateSubdirectory("MacOS");
             var resRegex = options.MacBundleResources.Select(GlobRegex).ToArray();
+            var ignoreRegex = options.MacBundleIgnore.Select(GlobRegex).ToArray();
             foreach (var file in dir.GetFiles()) {
+                if (ignoreRegex.Any(r => r.IsMatch(file.Name)))
+                    continue;
                 var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
                 if (file.Name.EndsWith("plist"))
                     destDir = app;
                 file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
             }
             foreach (var sub in dir.GetDirectories()) {
-                if (sub.Name == app.Name)
+                if (sub.Name == app.Name || ignoreRegex.Any(r => r.IsMatch(sub.Name)))
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(sub.Name)) ? resources : macOs;
                 var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
