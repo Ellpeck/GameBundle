@@ -146,7 +146,7 @@ namespace GameBundle {
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
                 if (file.Name.EndsWith("plist"))
-                    destDir = app;
+                    destDir = contents;
                 file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
             }
             foreach (var sub in dirs) {
