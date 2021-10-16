@@ -1,4 +1,4 @@
-<img src="Logo.png" width="25%" >
+![The GameBundle logo](Logo.png)
 
 **GameBundle** is a tool to package MonoGame and other .NET Core applications into several distributable formats.
 

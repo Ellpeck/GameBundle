@@ -1,29 +1,32 @@
 <Project Sdk="Microsoft.NET.Sdk">
-
+    
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net5.0</TargetFramework>
-
+        
         <Authors>Ellpeck</Authors>
         <Description>A tool to package MonoGame and other .NET Core applications into several distributable formats</Description>
         <PackageTags>monogame mono xna netcore dotnet publish bundle tool library</PackageTags>
         <PackageProjectUrl>https://github.com/Ellpeck/GameBundle</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Ellpeck/GameBundle</RepositoryUrl>
-        <PackageLicenseUrl>https://github.com/Ellpeck/GameBundle/blob/master/LICENSE</PackageLicenseUrl>
-        <PackageIconUrl>https://raw.githubusercontent.com/Ellpeck/GameBundle/master/Logo.png</PackageIconUrl>
+        <PackageLicenseExpression>MIT</PackageLicenseExpression>
+        <PackageReadmeFile>README.md</PackageReadmeFile>
+        <PackageIcon>Logo.png</PackageIcon>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gamebundle</ToolCommandName>
         <VersionPrefix>1.3.1</VersionPrefix>
     </PropertyGroup>
-
+    
     <ItemGroup>
-      <PackageReference Include="CommandLineParser" Version="2.7.82" />
+        <PackageReference Include="CommandLineParser" Version="2.7.82" />
     </ItemGroup>
-
+    
     <ItemGroup>
-      <None Include=".config\dotnet-tools.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+        <None Include=".config\dotnet-tools.json">
+            <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+        </None>
+        <None Include="../README.md" Pack="true" PackagePath="" />
+        <None Include="../Logo.png" Pack="true" PackagePath="" />
     </ItemGroup>
 
 </Project>
