@@ -49,7 +49,7 @@ namespace GameBundle {
                 var dir = GetBuildDir(options, proj, "mac");
                 var res = Publish(options, proj, dir, "osx-x64", () => {
                     if (options.MacBundle)
-                        CreateMacBundle(options, new DirectoryInfo(dir), proj.FullName);
+                        CreateMacBundle(options, new DirectoryInfo(dir), proj);
                 });
                 if (res != 0)
                     return res;
@@ -63,7 +63,7 @@ namespace GameBundle {
         }
 
         private static int Publish(Options options, FileInfo proj, string path, string rid, Action additionalAction = null) {
-            var publishResult = RunProcess(options, "dotnet", $"publish {proj.FullName} -o {path} -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
+            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{path}\" -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
             if (publishResult != 0)
                 return publishResult;
 
@@ -116,8 +116,8 @@ namespace GameBundle {
             return null;
         }
 
-        private static void CreateMacBundle(Options options, DirectoryInfo dir, string proj) {
-            var app = dir.CreateSubdirectory($"{Path.GetFileNameWithoutExtension(proj)}.app");
+        private static void CreateMacBundle(Options options, DirectoryInfo dir, FileInfo proj) {
+            var app = dir.CreateSubdirectory($"{GetDisplayName(options, proj)}.app");
             var contents = app.CreateSubdirectory("Contents");
             var resources = contents.CreateSubdirectory("Resources");
             var macOs = contents.CreateSubdirectory("MacOS");
@@ -146,8 +146,12 @@ namespace GameBundle {
         private static string GetBuildDir(Options options, FileInfo proj, string osName) {
             var dir = Path.GetFullPath(options.OutputDirectory);
             if (options.NameBuilds)
-                return $"{dir}/{Path.GetFileNameWithoutExtension(proj.Name)}-{osName}";
+                return $"{dir}/{GetDisplayName(options, proj)}-{osName}";
             return $"{dir}/{osName}";
+        }
+
+        private static string GetDisplayName(Options options, FileInfo proj) {
+            return string.IsNullOrEmpty(options.DisplayName) ? Path.GetFileNameWithoutExtension(proj.Name) : options.DisplayName;
         }
 
     }
