@@ -128,7 +128,8 @@ namespace GameBundle {
                 if (!string.IsNullOrEmpty(file.Extension))
                     continue;
                 if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == file.Name)) {
-                    Console.WriteLine($"Choosing app name {file.Name} from binary");
+                    if (options.Verbose)
+                        Console.WriteLine($"Choosing app name {file.Name} from binary");
                     appName = file.Name;
                     break;
                 }
