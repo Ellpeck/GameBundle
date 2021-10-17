@@ -19,12 +19,14 @@ namespace GameBundle {
 
         private static int Run(Options options) {
             // make sure all of the required tools are installed
-            if (RunProcess(options, "dotnet", "tool restore", AppDomain.CurrentDomain.BaseDirectory) != 0)
+            if (RunProcess(options, "dotnet", "tool restore", AppDomain.CurrentDomain.BaseDirectory) != 0) {
+                Console.WriteLine("dotnet tool restore failed, aborting");
                 return -1;
+            }
 
             var proj = GetProjectFile(options);
             if (proj == null || !proj.Exists) {
-                Console.WriteLine("Project file not found");
+                Console.WriteLine("Project file not found, aborting");
                 return -1;
             }
             Console.WriteLine("Bundling project " + proj.FullName);
@@ -32,25 +34,23 @@ namespace GameBundle {
             var builtAnything = false;
             if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
-                var res = Publish(options, proj, GetBuildDir(options, proj, "win"), options.Publish32Bit ? "win-x86" : "win-x64");
+                var res = Publish(options, proj, GetBuildDir(options, "win"), options.Publish32Bit ? "win-x86" : "win-x64");
                 if (res != 0)
                     return res;
                 builtAnything = true;
             }
             if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
-                var res = Publish(options, proj, GetBuildDir(options, proj, "linux"), "linux-x64");
+                var res = Publish(options, proj, GetBuildDir(options, "linux"), "linux-x64");
                 if (res != 0)
                     return res;
                 builtAnything = true;
             }
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
-                var dir = GetBuildDir(options, proj, "mac");
-                var res = Publish(options, proj, dir, "osx-x64", () => {
-                    if (options.MacBundle)
-                        CreateMacBundle(options, new DirectoryInfo(dir), proj);
-                });
+                var dir = GetBuildDir(options, "mac");
+                var res = Publish(options, proj, dir, "osx-x64",
+                    () => options.MacBundle ? CreateMacBundle(options, dir, proj) : 0);
                 if (res != 0)
                     return res;
                 builtAnything = true;
@@ -62,8 +62,8 @@ namespace GameBundle {
             return 0;
         }
 
-        private static int Publish(Options options, FileInfo proj, string path, string rid, Action additionalAction = null) {
-            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{path}\" -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
+        private static int Publish(Options options, FileInfo proj, DirectoryInfo buildDir, string rid, Func<int> additionalAction = null) {
+            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
             if (publishResult != 0)
                 return publishResult;
 
@@ -71,25 +71,43 @@ namespace GameBundle {
             if (!options.SkipLib) {
                 var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
                 var log = options.Verbose ? "Detail" : "Error";
-                var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{path}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+                var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
                 if (beautyResult != 0)
                     return beautyResult;
 
                 // Remove the beauty file since it's just a marker
-                var beautyFile = new FileInfo(Path.Combine(path, "NetCoreBeauty"));
+                var beautyFile = new FileInfo(Path.Combine(buildDir.FullName, "NetCoreBeauty"));
                 if (beautyFile.Exists)
                     beautyFile.Delete();
             }
 
+            // Rename build folder if named builds are enabled
+            if (options.NameBuilds) {
+                var name = GetBuildName(options, buildDir);
+                if (name == null) {
+                    Console.WriteLine("Couldn't determine build name, aborting");
+                    return -1;
+                }
+                buildDir.MoveTo(Path.Combine(buildDir.Parent.FullName, $"{name}-{buildDir.Name}"));
+                if (options.Verbose)
+                    Console.WriteLine($"Moved build directory to {buildDir.FullName}");
+            }
+
             // Run any additional actions like creating the mac bundle
-            additionalAction?.Invoke();
+            if (additionalAction != null) {
+                var result = additionalAction();
+                if (result != 0)
+                    return result;
+            }
 
             // Zip the output if required
             if (options.Zip) {
-                var zipLocation = Path.Combine(Directory.GetParent(path).FullName, Path.GetFileName(path) + ".zip");
+                var zipLocation = Path.Combine(buildDir.Parent.FullName, buildDir.Name + ".zip");
                 File.Delete(zipLocation);
-                ZipFile.CreateFromDirectory(path, zipLocation, CompressionLevel.Optimal, true);
-                Directory.Delete(path, true);
+                ZipFile.CreateFromDirectory(buildDir.FullName, zipLocation, CompressionLevel.Optimal, true);
+                buildDir.Delete(true);
+                if (options.Verbose)
+                    Console.WriteLine($"Zipped build to {zipLocation}");
             }
             return 0;
         }
@@ -118,31 +136,16 @@ namespace GameBundle {
             return null;
         }
 
-        private static void CreateMacBundle(Options options, DirectoryInfo dir, FileInfo proj) {
-            var files = dir.GetFiles();
-            var dirs = dir.GetDirectories();
-
-            // figure out the app name, which should match the binary (and dll) name
-            var appName = Path.GetFileNameWithoutExtension(proj.Name);
-            foreach (var file in files) {
-                if (!string.IsNullOrEmpty(file.Extension))
-                    continue;
-                if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == file.Name)) {
-                    if (options.Verbose)
-                        Console.WriteLine($"Choosing app name {file.Name} from binary");
-                    appName = file.Name;
-                    break;
-                }
-            }
-
-            var app = dir.CreateSubdirectory($"{appName}.app");
+        private static int CreateMacBundle(Options options, DirectoryInfo buildDir, FileInfo proj) {
+            var buildName = GetBuildName(options, buildDir);
+            var app = buildDir.CreateSubdirectory($"{buildName}.app");
             var contents = app.CreateSubdirectory("Contents");
             var resources = contents.CreateSubdirectory("Resources");
             var macOs = contents.CreateSubdirectory("MacOS");
             var resRegex = options.MacBundleResources.Select(GlobRegex).ToArray();
             var ignoreRegex = options.MacBundleIgnore.Select(GlobRegex).ToArray();
 
-            foreach (var file in files) {
+            foreach (var file in buildDir.GetFiles()) {
                 if (ignoreRegex.Any(r => r.IsMatch(file.Name)))
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
@@ -150,8 +153,8 @@ namespace GameBundle {
                     destDir = contents;
                 file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
             }
-            foreach (var sub in dirs) {
-                if (ignoreRegex.Any(r => r.IsMatch(sub.Name)))
+            foreach (var sub in buildDir.GetDirectories()) {
+                if (sub.Name == app.Name || ignoreRegex.Any(r => r.IsMatch(sub.Name)))
                     continue;
                 var destDir = resRegex.Any(r => r.IsMatch(sub.Name)) ? resources : macOs;
                 var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
@@ -160,17 +163,31 @@ namespace GameBundle {
                 sub.MoveTo(dest.FullName);
             }
             File.WriteAllText(Path.Combine(contents.FullName, "PkgInfo"), "APPL????");
+            return 0;
         }
 
         private static Regex GlobRegex(string s) {
             return new Regex(s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."));
         }
 
-        private static string GetBuildDir(Options options, FileInfo proj, string osName) {
-            var dir = Path.GetFullPath(options.OutputDirectory);
-            if (options.NameBuilds)
-                return $"{dir}/{Path.GetFileNameWithoutExtension(proj.Name)}-{osName}";
-            return $"{dir}/{osName}";
+        private static DirectoryInfo GetBuildDir(Options options, string osName) {
+            return new DirectoryInfo(Path.Combine(Path.GetFullPath(options.OutputDirectory), osName));
+        }
+
+        private static string GetBuildName(Options options, DirectoryInfo buildDir) {
+            // determine build name based on the names of the exe or binary that have a matching dll file
+            var files = buildDir.GetFiles();
+            foreach (var file in files) {
+                if (file.Extension != ".exe" && file.Extension != string.Empty)
+                    continue;
+                var name = Path.GetFileNameWithoutExtension(file.Name);
+                if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == name)) {
+                    if (options.Verbose)
+                        Console.WriteLine($"Choosing name {name} from executable");
+                    return name;
+                }
+            }
+            return null;
         }
 
     }
