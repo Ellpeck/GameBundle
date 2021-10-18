@@ -83,7 +83,10 @@ namespace GameBundle {
                     Console.WriteLine("Couldn't determine build name, aborting");
                     return -1;
                 }
-                buildDir.MoveTo(Path.Combine(buildDir.Parent.FullName, $"{name}-{buildDir.Name}"));
+                var dest = Path.Combine(buildDir.Parent.FullName, $"{name}-{buildDir.Name}");
+                if (Directory.Exists(dest))
+                    Directory.Delete(dest, true);
+                buildDir.MoveTo(dest);
                 if (options.Verbose)
                     Console.WriteLine($"Moved build directory to {buildDir.FullName}");
             }
@@ -98,7 +101,8 @@ namespace GameBundle {
             // Zip the output if required
             if (options.Zip) {
                 var zipLocation = Path.Combine(buildDir.Parent.FullName, $"{buildDir.Name}.zip");
-                File.Delete(zipLocation);
+                if (File.Exists(zipLocation))
+                    File.Delete(zipLocation);
                 ZipFile.CreateFromDirectory(buildDir.FullName, zipLocation, CompressionLevel.Optimal, true);
                 buildDir.Delete(true);
                 if (options.Verbose)
