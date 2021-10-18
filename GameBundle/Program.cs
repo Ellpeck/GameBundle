@@ -29,7 +29,7 @@ namespace GameBundle {
                 Console.WriteLine("Project file not found, aborting");
                 return -1;
             }
-            Console.WriteLine("Bundling project " + proj.FullName);
+            Console.WriteLine($"Bundling project {proj.FullName}");
 
             var builtAnything = false;
             if (options.BuildWindows) {
@@ -97,7 +97,7 @@ namespace GameBundle {
 
             // Zip the output if required
             if (options.Zip) {
-                var zipLocation = Path.Combine(buildDir.Parent.FullName, buildDir.Name + ".zip");
+                var zipLocation = Path.Combine(buildDir.Parent.FullName, $"{buildDir.Name}.zip");
                 File.Delete(zipLocation);
                 ZipFile.CreateFromDirectory(buildDir.FullName, zipLocation, CompressionLevel.Optimal, true);
                 buildDir.Delete(true);
@@ -140,6 +140,9 @@ namespace GameBundle {
             var resRegex = options.MacBundleResources.Select(GlobRegex).ToArray();
             var ignoreRegex = options.MacBundleIgnore.Select(GlobRegex).ToArray();
 
+            if (options.Verbose)
+                Console.WriteLine($"Creating app bundle {app}");
+
             foreach (var file in buildDir.GetFiles()) {
                 if (ignoreRegex.Any(r => r.IsMatch(file.Name)))
                     continue;
@@ -157,7 +160,14 @@ namespace GameBundle {
                     dest.Delete(true);
                 sub.MoveTo(dest.FullName);
             }
-            File.WriteAllText(Path.Combine(contents.FullName, "PkgInfo"), "APPL????");
+
+            var info = Path.Combine(contents.FullName, "PkgInfo");
+            if (!File.Exists(info)) {
+                File.WriteAllText(info, "APPL????");
+                if (options.Verbose)
+                    Console.WriteLine($"Creating package info at {info}");
+            }
+
             return 0;
         }
 
@@ -176,11 +186,8 @@ namespace GameBundle {
                 if (file.Extension != ".exe" && file.Extension != string.Empty)
                     continue;
                 var name = Path.GetFileNameWithoutExtension(file.Name);
-                if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == name)) {
-                    if (options.Verbose)
-                        Console.WriteLine($"Choosing name {name} from executable");
+                if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == name))
                     return name;
-                }
             }
             return null;
         }
