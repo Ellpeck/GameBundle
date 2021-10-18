@@ -9,7 +9,7 @@ namespace GameBundle {
         public string SourceFile { get; set; }
         [Option('o', "output", Default = "bin/Bundled", HelpText = "The location of the directory that the bundles should be stored in")]
         public string OutputDirectory { get; set; }
-        [Option('v', "verbose")]
+        [Option('v', "verbose", HelpText = "Display verbose output while building")]
         public bool Verbose { get; set; }
 
         [Option('w', "win", HelpText = "Bundle for windows")]
@@ -18,6 +18,12 @@ namespace GameBundle {
         public bool BuildLinux { get; set; }
         [Option('m', "mac", HelpText = "Bundle for mac")]
         public bool BuildMac { get; set; }
+        [Option("win-rid", Default = "win-x64", HelpText = "The RID to use for windows builds")]
+        public string WindowsRid { get; set; }
+        [Option("linux-rid", Default = "linux-x64", HelpText = "The RID to use for linux builds")]
+        public string LinuxRid { get; set; }
+        [Option("mac-rid", Default = "osx-x64", HelpText = "The RID to use for mac builds")]
+        public string MacRid { get; set; }
         [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
         public bool Zip { get; set; }
 
@@ -25,7 +31,7 @@ namespace GameBundle {
         public bool MacBundle { get; set; }
         [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
         public IEnumerable<string> MacBundleResources { get; set; }
-        [Option("mac-bundle-ignore", Default = new string[0], HelpText = "When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder")]
+        [Option("mac-bundle-ignore", HelpText = "When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder")]
         public IEnumerable<string> MacBundleIgnore { get; set; }
 
         [Option("skip-lib", HelpText = "When bundling, skip beautifying the output by moving files to the library folder")]
@@ -35,8 +41,6 @@ namespace GameBundle {
         [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
         public string LibFolder { get; set; }
 
-        [Option("32-bit", HelpText = "Publish for 32 bit instead of 64 bit. Note that this is only possible on Windows")]
-        public bool Publish32Bit { get; set; }
         [Option('t', "trim", HelpText = "Trim the application when publishing")]
         public bool Trim { get; set; }
         [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]

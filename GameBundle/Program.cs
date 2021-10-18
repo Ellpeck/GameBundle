@@ -34,14 +34,14 @@ namespace GameBundle {
             var builtAnything = false;
             if (options.BuildWindows) {
                 Console.WriteLine("Bundling for windows");
-                var res = Publish(options, proj, GetBuildDir(options, "win"), options.Publish32Bit ? "win-x86" : "win-x64");
+                var res = Publish(options, proj, GetBuildDir(options, "win"), options.WindowsRid);
                 if (res != 0)
                     return res;
                 builtAnything = true;
             }
             if (options.BuildLinux) {
                 Console.WriteLine("Bundling for linux");
-                var res = Publish(options, proj, GetBuildDir(options, "linux"), "linux-x64");
+                var res = Publish(options, proj, GetBuildDir(options, "linux"), options.LinuxRid);
                 if (res != 0)
                     return res;
                 builtAnything = true;
@@ -49,7 +49,7 @@ namespace GameBundle {
             if (options.BuildMac) {
                 Console.WriteLine("Bundling for mac");
                 var dir = GetBuildDir(options, "mac");
-                var res = Publish(options, proj, dir, "osx-x64",
+                var res = Publish(options, proj, dir, options.MacRid,
                     () => options.MacBundle ? CreateMacBundle(options, dir, proj) : 0);
                 if (res != 0)
                     return res;
