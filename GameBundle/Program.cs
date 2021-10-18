@@ -71,14 +71,9 @@ namespace GameBundle {
             if (!options.SkipLib) {
                 var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
                 var log = options.Verbose ? "Detail" : "Error";
-                var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+                var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
                 if (beautyResult != 0)
                     return beautyResult;
-
-                // Remove the beauty file since it's just a marker
-                var beautyFile = new FileInfo(Path.Combine(buildDir.FullName, "NetCoreBeauty"));
-                if (beautyFile.Exists)
-                    beautyFile.Delete();
             }
 
             // Rename build folder if named builds are enabled
