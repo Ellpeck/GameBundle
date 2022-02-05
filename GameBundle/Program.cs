@@ -32,43 +32,40 @@ namespace GameBundle {
             Console.WriteLine($"Bundling project {proj.FullName}");
 
             var builtAnything = false;
-            if (options.BuildWindows) {
-                Console.WriteLine("Bundling for windows");
-                var res = Publish(options, proj, GetBuildDir(options, "win"), options.WindowsRid);
-                if (res != 0)
-                    return res;
-                builtAnything = true;
+            var toBuild = new List<BuildConfig> {
+                // regular builds
+                new("windows", "win", options.WindowsRid, options.BuildWindows),
+                new("linux", "linux", options.LinuxRid, options.BuildLinux),
+                new("mac", "mac", options.MacRid, options.BuildMac, false, d => options.MacBundle ? CreateMacBundle(options, d) : 0),
+                // arm builds
+                new("windows arm", "win-arm", options.WindowsArmRid, options.BuildWindowsArm, true),
+                new("linux arm", "linux-arm", options.LinuxArmRid, options.BuildLinuxArm, true),
+                new("mac arm", "mac-arm", options.MacArmRid, options.BuildMacArm, true, d => options.MacBundle ? CreateMacBundle(options, d) : 0)
+            };
+            foreach (var config in toBuild) {
+                if (config.ShouldBuild) {
+                    Console.WriteLine($"Bundling for {config.DisplayName}");
+                    var res = Publish(options, proj, config);
+                    if (res != 0)
+                        return res;
+                    builtAnything = true;
+                }
             }
-            if (options.BuildLinux) {
-                Console.WriteLine("Bundling for linux");
-                var res = Publish(options, proj, GetBuildDir(options, "linux"), options.LinuxRid);
-                if (res != 0)
-                    return res;
-                builtAnything = true;
-            }
-            if (options.BuildMac) {
-                Console.WriteLine("Bundling for mac");
-                var dir = GetBuildDir(options, "mac");
-                var res = Publish(options, proj, dir, options.MacRid,
-                    () => options.MacBundle ? CreateMacBundle(options, dir, proj) : 0);
-                if (res != 0)
-                    return res;
-                builtAnything = true;
-            }
-
             if (!builtAnything)
                 Console.WriteLine("No build took place. Supply -w, -l or -m arguments or see available arguments using --help.");
+
             Console.WriteLine("Done");
             return 0;
         }
 
-        private static int Publish(Options options, FileInfo proj, DirectoryInfo buildDir, string rid, Func<int> additionalAction = null) {
-            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
+        private static int Publish(Options options, FileInfo proj, BuildConfig config) {
+            var buildDir = GetBuildDir(options, config.DirectoryName);
+            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {config.Rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
             if (publishResult != 0)
                 return publishResult;
 
             // Run beauty
-            if (!options.SkipLib) {
+            if (!options.SkipLib && !config.SkipLib) {
                 var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
                 var log = options.Verbose ? "Detail" : "Error";
                 var beautyResult = RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
@@ -92,8 +89,8 @@ namespace GameBundle {
             }
 
             // Run any additional actions like creating the mac bundle
-            if (additionalAction != null) {
-                var result = additionalAction();
+            if (config.AdditionalAction != null) {
+                var result = config.AdditionalAction.Invoke(buildDir);
                 if (result != 0)
                     return result;
             }
@@ -135,7 +132,7 @@ namespace GameBundle {
             return null;
         }
 
-        private static int CreateMacBundle(Options options, DirectoryInfo buildDir, FileInfo proj) {
+        private static int CreateMacBundle(Options options, DirectoryInfo buildDir) {
             var buildName = GetBuildName(options, buildDir);
             var app = buildDir.CreateSubdirectory($"{buildName}.app");
             var contents = app.CreateSubdirectory("Contents");
@@ -194,6 +191,26 @@ namespace GameBundle {
                     return name;
             }
             return null;
+        }
+
+        private readonly struct BuildConfig {
+
+            public readonly string DisplayName;
+            public readonly string DirectoryName;
+            public readonly string Rid;
+            public readonly bool ShouldBuild;
+            public readonly bool SkipLib;
+            public readonly Func<DirectoryInfo, int> AdditionalAction;
+
+            public BuildConfig(string displayName, string directoryName, string rid, bool shouldBuild, bool skipLib = false, Func<DirectoryInfo, int> additionalAction = null) {
+                this.DisplayName = displayName;
+                this.DirectoryName = directoryName;
+                this.Rid = rid;
+                this.ShouldBuild = shouldBuild;
+                this.SkipLib = skipLib;
+                this.AdditionalAction = additionalAction;
+            }
+
         }
 
     }

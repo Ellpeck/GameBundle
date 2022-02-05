@@ -24,9 +24,22 @@ namespace GameBundle {
         public string LinuxRid { get; set; }
         [Option("mac-rid", Default = "osx-x64", HelpText = "The RID to use for mac builds")]
         public string MacRid { get; set; }
+
+        [Option('W', "win-arm", HelpText = "Bundle for windows arm")]
+        public bool BuildWindowsArm { get; set; }
+        [Option('L', "linux-arm", HelpText = "Bundle for linux arm")]
+        public bool BuildLinuxArm { get; set; }
+        [Option('M', "mac-arm", HelpText = "Bundle for mac arm")]
+        public bool BuildMacArm { get; set; }
+        [Option("win-arm-rid", Default = "win-arm64", HelpText = "The RID to use for windows arm builds")]
+        public string WindowsArmRid { get; set; }
+        [Option("linux-arm-rid", Default = "linux-arm64", HelpText = "The RID to use for linux arm builds")]
+        public string LinuxArmRid { get; set; }
+        [Option("mac-arm-rid", Default = "osx-arm64", HelpText = "The RID to use for mac arm builds")]
+        public string MacArmRid { get; set; }
+
         [Option('z', "zip", HelpText = "Store the build results in zip files instead of folders")]
         public bool Zip { get; set; }
-
         [Option('b', "mac-bundle", HelpText = "Create an app bundle for mac")]
         public bool MacBundle { get; set; }
         [Option("mac-bundle-resources", Default = new[] {"Content", "*.icns"}, HelpText = "When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder")]
