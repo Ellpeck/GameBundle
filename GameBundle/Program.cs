@@ -60,7 +60,7 @@ namespace GameBundle {
 
         private static int Publish(Options options, FileInfo proj, BuildConfig config) {
             var buildDir = GetBuildDir(options, config.DirectoryName);
-            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {config.Rid} -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
+            var publishResult = RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {config.Rid} --self-contained -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
             if (publishResult != 0)
                 return publishResult;
 

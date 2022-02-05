@@ -1,1 +1,1 @@
-"../GameBundle/bin/Debug/net5.0/GameBundle.exe" -wlmWL -bzn -s Test.csproj -o bin/Bundled -v --mac-bundle-ignore macmain.txt
+"../GameBundle/bin/Debug/net6.0/GameBundle.exe" -wlmWL -bzn -s Test.csproj -o bin/Bundled -v --mac-bundle-ignore macmain.txt
