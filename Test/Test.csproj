@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
+    
     <PropertyGroup>
         <OutputType>Exe</OutputType>
         <TargetFramework>net6.0</TargetFramework>
@@ -7,17 +7,17 @@
         <TieredCompilation>false</TieredCompilation>
         <AssemblyName>Test Project</AssemblyName>
     </PropertyGroup>
-
+    
     <ItemGroup>
         <PackageReference Include="Contentless" Version="2.0.*" />
         <PackageReference Include="MLEM.Startup" Version="3.2.*" />
         <PackageReference Include="MonoGame.Content.Builder" Version="3.7.*" />
         <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
     </ItemGroup>
-
+    
     <ItemGroup>
         <MonoGameContentReference Include="Content\Content.mgcb" />
         <Content Include="Content\*\**" />
-        <Content Include="macmain.txt" CopyToOutputDirectory="Always"/>
+        <Content Include="macmain.txt" CopyToOutputDirectory="Always" />
     </ItemGroup>
 </Project>
