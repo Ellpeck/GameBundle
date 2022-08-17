@@ -2,7 +2,7 @@ using System;
 using System.Collections.Generic;
 using CommandLine;
 
-namespace GameBundle; 
+namespace GameBundle;
 
 public class Options {
 
@@ -65,5 +65,7 @@ public class Options {
     public bool NameBuilds { get; set; }
     [Option('N', "name-addition", HelpText = "An additional string of text that should be included in the names of the output directories")]
     public string NameAddition { get; set; }
+    [Option('V', "include-version", HelpText = "Include the project's version in the names of the output directories")]
+    public bool IncludeVersion { get; set; }
 
 }

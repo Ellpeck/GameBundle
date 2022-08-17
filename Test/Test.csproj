@@ -6,6 +6,7 @@
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
         <AssemblyName>Test Project</AssemblyName>
+        <Version>1.2.3</Version>
     </PropertyGroup>
     
     <ItemGroup>

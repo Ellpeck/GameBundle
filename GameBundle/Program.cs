@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
 
-namespace GameBundle; 
+namespace GameBundle;
 
 internal static class Program {
 
@@ -74,19 +74,26 @@ internal static class Program {
                 return beautyResult;
         }
 
+        // Add version if named builds are enabled
+        if (options.IncludeVersion) {
+            var version = Program.GetBuildVersion(buildDir);
+            if (version == null) {
+                Console.WriteLine("Couldn't determine build version, aborting");
+                return -1;
+            }
+            var dest = Path.Combine(buildDir.Parent.FullName, $"{version}-{buildDir.Name}");
+            Program.MoveDirectory(options, buildDir, dest);
+        }
+
         // Rename build folder if named builds are enabled
         if (options.NameBuilds) {
-            var name = Program.GetBuildName(options, buildDir);
+            var name = Program.GetBuildName(buildDir);
             if (name == null) {
                 Console.WriteLine("Couldn't determine build name, aborting");
                 return -1;
             }
             var dest = Path.Combine(buildDir.Parent.FullName, $"{name}-{buildDir.Name}");
-            if (Directory.Exists(dest))
-                Directory.Delete(dest, true);
-            buildDir.MoveTo(dest);
-            if (options.Verbose)
-                Console.WriteLine($"Moved build directory to {buildDir.FullName}");
+            Program.MoveDirectory(options, buildDir, dest);
         }
 
         // Run any additional actions like creating the mac bundle
@@ -134,7 +141,7 @@ internal static class Program {
     }
 
     private static int CreateMacBundle(Options options, DirectoryInfo buildDir) {
-        var buildName = Program.GetBuildName(options, buildDir);
+        var buildName = Program.GetBuildName(buildDir);
         var app = buildDir.CreateSubdirectory($"{buildName}.app");
         var contents = app.CreateSubdirectory("Contents");
         var resources = contents.CreateSubdirectory("Resources");
@@ -183,17 +190,36 @@ internal static class Program {
         return new DirectoryInfo(Path.Combine(Path.GetFullPath(options.OutputDirectory), name));
     }
 
-    private static string GetBuildName(Options options, DirectoryInfo buildDir) {
-        // determine build name based on the names of the exe or binary that have a matching dll file
+    private static string GetBuildName(DirectoryInfo buildDir) {
+        return Path.GetFileNameWithoutExtension(Program.GetAssemblyFile(buildDir)?.Name);
+    }
+
+    private static string GetBuildVersion(DirectoryInfo buildDir) {
+        var assemblyFile = Program.GetAssemblyFile(buildDir);
+        if (assemblyFile == null)
+            return null;
+        var version = FileVersionInfo.GetVersionInfo(assemblyFile.FullName);
+        return version.ProductVersion;
+    }
+
+    private static FileInfo GetAssemblyFile(DirectoryInfo buildDir) {
         var files = buildDir.GetFiles();
         foreach (var file in files) {
-            if (file.Extension != ".exe" && file.Extension != string.Empty)
+            if (file.Extension != ".dll")
                 continue;
-            var name = Path.GetFileNameWithoutExtension(file.Name);
-            if (files.Any(f => f.Extension == ".dll" && Path.GetFileNameWithoutExtension(f.Name) == name))
-                return name;
+            // the assembly is (most likely) the dll file that has a matching binary or exe file in the same location
+            if (files.Any(f => f.Extension is ".exe" or "" && Path.GetFileNameWithoutExtension(f.Name) == Path.GetFileNameWithoutExtension(file.Name)))
+                return file;
         }
         return null;
+    }
+
+    private static void MoveDirectory(Options options, DirectoryInfo dir, string dest) {
+        if (Directory.Exists(dest))
+            Directory.Delete(dest, true);
+        dir.MoveTo(dest!);
+        if (options.Verbose)
+            Console.WriteLine($"Moved build directory to {dir.FullName}");
     }
 
     private readonly struct BuildConfig {
