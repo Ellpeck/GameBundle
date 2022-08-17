@@ -176,8 +176,10 @@ namespace GameBundle {
             return new Regex(s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."));
         }
 
-        private static DirectoryInfo GetBuildDir(Options options, string osName) {
-            return new DirectoryInfo(Path.Combine(Path.GetFullPath(options.OutputDirectory), osName));
+        private static DirectoryInfo GetBuildDir(Options options, string name) {
+            if (options.NameAddition != null)
+                name = $"{options.NameAddition}-{name}";
+            return new DirectoryInfo(Path.Combine(Path.GetFullPath(options.OutputDirectory), name));
         }
 
         private static string GetBuildName(Options options, DirectoryInfo buildDir) {

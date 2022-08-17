@@ -62,6 +62,8 @@ namespace GameBundle {
         public string BuildArgs { get; set; }
         [Option('n', "name-builds", HelpText = "Name the build output directories by the name of the executable")]
         public bool NameBuilds { get; set; }
+        [Option('N', "name-addition", HelpText = "An additional string of text that should be included in the names of the output directories")]
+        public string NameAddition { get; set; }
 
     }
 }
