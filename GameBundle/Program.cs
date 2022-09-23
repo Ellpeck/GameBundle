@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
+using System.IO.Enumeration;
 using System.Linq;
 using System.Text.RegularExpressions;
 using CommandLine;
@@ -146,24 +147,22 @@ internal static class Program {
         var contents = app.CreateSubdirectory("Contents");
         var resources = contents.CreateSubdirectory("Resources");
         var macOs = contents.CreateSubdirectory("MacOS");
-        var resRegex = options.MacBundleResources.Select(Program.GlobRegex).ToArray();
-        var ignoreRegex = options.MacBundleIgnore.Select(Program.GlobRegex).ToArray();
 
         if (options.Verbose)
             Console.WriteLine($"Creating app bundle {app}");
 
         foreach (var file in buildDir.GetFiles()) {
-            if (ignoreRegex.Any(r => r.IsMatch(file.Name)))
+            if (options.MacBundleIgnore.Any(g => FileSystemName.MatchesSimpleExpression(g, file.Name)))
                 continue;
-            var destDir = resRegex.Any(r => r.IsMatch(file.Name)) ? resources : macOs;
+            var destDir = options.MacBundleResources.Any(g => FileSystemName.MatchesSimpleExpression(g, file.Name)) ? resources : macOs;
             if (file.Name.EndsWith("plist") || file.Name == "PkgInfo")
                 destDir = contents;
             file.MoveTo(Path.Combine(destDir.FullName, file.Name), true);
         }
         foreach (var sub in buildDir.GetDirectories()) {
-            if (sub.Name == app.Name || ignoreRegex.Any(r => r.IsMatch(sub.Name)))
+            if (sub.Name == app.Name || options.MacBundleIgnore.Any(g => FileSystemName.MatchesSimpleExpression(g, sub.Name)))
                 continue;
-            var destDir = resRegex.Any(r => r.IsMatch(sub.Name)) ? resources : macOs;
+            var destDir = options.MacBundleResources.Any(g => FileSystemName.MatchesSimpleExpression(g, sub.Name)) ? resources : macOs;
             var dest = new DirectoryInfo(Path.Combine(destDir.FullName, sub.Name));
             if (dest.Exists)
                 dest.Delete(true);
@@ -178,10 +177,6 @@ internal static class Program {
         }
 
         return 0;
-    }
-
-    private static Regex GlobRegex(string s) {
-        return new Regex(s.Replace(".", "[.]").Replace("*", ".*").Replace("?", "."));
     }
 
     private static DirectoryInfo GetBuildDir(Options options, string name) {
