@@ -15,7 +15,7 @@
         <PackageIcon>Logo.png</PackageIcon>
         <PackAsTool>true</PackAsTool>
         <ToolCommandName>gamebundle</ToolCommandName>
-        <VersionPrefix>1.5.3</VersionPrefix>
+        <VersionPrefix>1.5.4</VersionPrefix>
     </PropertyGroup>
     
     <ItemGroup>
