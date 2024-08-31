@@ -2,7 +2,7 @@
     
     <PropertyGroup>
         <OutputType>Exe</OutputType>
-        <TargetFramework>net6.0</TargetFramework>
+        <TargetFramework>net8.0</TargetFramework>
         <PublishReadyToRun>false</PublishReadyToRun>
         <TieredCompilation>false</TieredCompilation>
         <AssemblyName>Test Project</AssemblyName>
@@ -13,7 +13,7 @@
         <PackageReference Include="Contentless" Version="2.0.*" />
         <PackageReference Include="MLEM.Startup" Version="3.2.*" />
         <PackageReference Include="MonoGame.Content.Builder" Version="3.7.*" />
-        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.0.1641" />
+        <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.2.1105" />
     </ItemGroup>
     
     <ItemGroup>
