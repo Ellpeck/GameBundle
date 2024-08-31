@@ -5,7 +5,6 @@ using System.IO;
 using System.IO.Compression;
 using System.IO.Enumeration;
 using System.Linq;
-using System.Text.RegularExpressions;
 using CommandLine;
 
 namespace GameBundle;
@@ -68,9 +67,12 @@ internal static class Program {
 
         // Run beauty
         if (!options.SkipLib && !config.SkipLib) {
-            var excludes = $"\"{string.Join(";", options.ExcludedFiles)}\"";
+            var exclude = options.ExcludedFiles.ToList();
+            if (options.MonoGameExclusions)
+                exclude.AddRange(["soft_oal.dll", "SDL2.dll", "libopenal.so.1", "libSDL2-2.0.so.0", "libopenal.1.dylib", "libSDL2.dylib"]);
+            var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
             var log = options.Verbose ? "Detail" : "Error";
-            var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludes}", AppDomain.CurrentDomain.BaseDirectory);
+            var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
             if (beautyResult != 0)
                 return beautyResult;
         }
