@@ -52,7 +52,7 @@ public class Options {
     public bool SkipLib { get; set; }
     [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
     public IEnumerable<string> ExcludedFiles { get; set; }
-    [Option("mg", HelpText = "Exclude MonoGame's native libraries from being moved to the library folder, which is a requirement for DesktopGL version 3.8.2.1105 or later. This has the same behavior as supplying the --exclude arguments soft_oal.dll, SDL2.dll, libopenal.so.1, libSDL2-2.0.so.0, libopenal.1.dylib and libSDL2.dylib")]
+    [Option("mg", HelpText = "Exclude MonoGame's native libraries from being moved to the library folder, which is a requirement for DesktopGL version 3.8.2.1105 or later.\nThis has the same behavior as supplying the --exclude arguments soft_oal.dll, SDL2.dll, libopenal.so.1, libSDL2-2.0.so.0, libopenal.1.dylib and libSDL2.dylib")]
     public bool MonoGameExclusions { get; set; }
     [Option("lib-name", Default = "Lib", HelpText = "The name of the library folder that is created")]
     public string LibFolder { get; set; }
