@@ -11,6 +11,11 @@ namespace GameBundle;
 
 internal static class Program {
 
+    public const string MonoGameExclusions =
+        "soft_oal.dll, openal.dll, SDL2.dll, " + // win
+        "libopenal.so.1, libopenal.so, libSDL2-2.0.so.0, " + // linux
+        "libopenal.1.dylib, libopenal.dylib, libSDL2.dylib, libSDL2-2.0.0.dylib"; // mac
+
     private static int Main(string[] args) {
         return new Parser(c => {
             c.HelpWriter = Console.Error;
@@ -69,7 +74,7 @@ internal static class Program {
         if (!options.SkipLib && !config.SkipLib) {
             var exclude = options.ExcludedFiles.ToList();
             if (options.MonoGameExclusions)
-                exclude.AddRange(["soft_oal.dll", "SDL2.dll", "libopenal.so.1", "libSDL2-2.0.so.0", "libopenal.1.dylib", "libSDL2.dylib"]);
+                exclude.AddRange(Program.MonoGameExclusions.Split(',').Select(s => s.Trim()));
             var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
             var log = options.Verbose ? "Detail" : "Error";
             var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);

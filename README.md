@@ -72,7 +72,8 @@ Here is a list of them as of GameBundle version 1.6.1:
   -e, --exclude             Files that should not be moved to the library folder
 
   --mg                      Exclude MonoGame's native libraries from being moved to the library folder, which is a requirement for DesktopGL version 3.8.2.1105 or later.
-                            This has the same behavior as supplying the --exclude arguments soft_oal.dll, SDL2.dll, libopenal.so.1, libSDL2-2.0.so.0, libopenal.1.dylib and libSDL2.dylib
+                            This has the same behavior as supplying the --exclude arguments soft_oal.dll, openal.dll, SDL2.dll, libopenal.so.1, libopenal.so, libSDL2-2.0.so.0, libopenal.1.dylib,        
+                            libopenal.dylib, libSDL2.dylib, libSDL2-2.0.0.dylib
 
   --lib-name                (Default: Lib) The name of the library folder that is created
 
