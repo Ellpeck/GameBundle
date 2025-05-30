@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using CommandLine;
+using CommandLine.Text;
 
 namespace GameBundle;
 
@@ -59,6 +60,8 @@ public class Options {
 
     [Option('t', "trim", HelpText = "Trim the application when publishing")]
     public bool Trim { get; set; }
+    [Option('A', "aot", HelpText = "Use NativeAOT compilation mode")]
+    public bool Aot { get; set; }
     [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]
     public string BuildConfig { get; set; }
     [Option('a', "build-args", HelpText = "Additional arguments that should be passed to the dotnet publish command")]

@@ -66,12 +66,20 @@ internal static class Program {
 
     private static int Publish(Options options, FileInfo proj, BuildConfig config) {
         var buildDir = Program.GetBuildDir(options, config.DirectoryName);
-        var publishResult = Program.RunProcess(options, "dotnet", $"publish \"{proj.FullName}\" -o \"{buildDir.FullName}\" -r {config.Rid} --self-contained -c {options.BuildConfig} /p:PublishTrimmed={options.Trim} {options.BuildArgs}");
+        var publishResult = Program.RunProcess(options, "dotnet", string.Join(' ',
+            $"publish \"{proj.FullName}\"",
+            $"-o \"{buildDir.FullName}\"",
+            $"-r {config.Rid}",
+            "--self-contained",
+            $"-c {options.BuildConfig}",
+            $"/p:PublishTrimmed={options.Trim || options.Aot}",
+            $"/p:PublishAot={options.Aot}",
+            $"{options.BuildArgs}"));
         if (publishResult != 0)
             return publishResult;
 
         // Run beauty
-        if (!options.SkipLib && !config.SkipLib) {
+        if (!options.SkipLib && !config.SkipLib && !options.Aot) {
             var exclude = options.ExcludedFiles.ToList();
             if (options.MonoGameExclusions)
                 exclude.AddRange(Program.MonoGameExclusions.Split(',').Select(s => s.Trim()));
@@ -206,6 +214,7 @@ internal static class Program {
 
     private static FileInfo GetAssemblyFile(DirectoryInfo buildDir) {
         var files = buildDir.GetFiles();
+
         foreach (var file in files) {
             if (file.Extension != ".dll")
                 continue;
@@ -213,6 +222,12 @@ internal static class Program {
             if (files.Any(f => f.Extension is ".exe" or "" && Path.GetFileNameWithoutExtension(f.Name) == Path.GetFileNameWithoutExtension(file.Name)))
                 return file;
         }
+
+        // if we didn't find a file, try to see if there is a single exe in the directory (which will be the case with AOT builds)
+        var exes = files.Where(f => f.Extension is ".exe" or "").ToArray();
+        if (exes.Length == 1)
+            return exes[0];
+
         return null;
     }
 
