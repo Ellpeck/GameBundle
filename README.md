@@ -79,6 +79,8 @@ Here is a list of them as of GameBundle version 1.6.1:
 
   -t, --trim                Trim the application when publishing
 
+  -A, --aot                 Use NativeAOT compilation mode
+
   -c, --config              (Default: Release) The build configuration to use
 
   -a, --build-args          Additional arguments that should be passed to the dotnet publish command
