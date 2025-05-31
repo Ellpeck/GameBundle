@@ -27,7 +27,7 @@ GameBundle takes several optional arguments to modify the way it works. To see a
 gamebundle --help
 ```
 
-Here is a list of them as of GameBundle version 1.6.1:
+Here is a list of them as of GameBundle version 1.7.0:
 ```
   -s, --source              The location of the .csproj file that should be built and bundled. By default, the current directory is scanned for one
 
