@@ -85,7 +85,7 @@ internal static class Program {
                 exclude.AddRange(Program.MonoGameExclusions.Split(',').Select(s => s.Trim()));
             var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
             var log = options.Verbose ? "Detail" : "Error";
-            var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
+            var beautyResult = Program.RunProcess(options, "dotnet", $"nbeauty2 --loglevel={log} \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
             if (beautyResult != 0)
                 return beautyResult;
         }
