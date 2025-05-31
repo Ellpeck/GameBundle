@@ -2,6 +2,12 @@
     "version": 1,
     "isRoot": true,
     "tools": {
+        "nulastudio.ncbeauty": {
+            "version": "1.2.9.5",
+            "commands": [
+                "ncbeauty"
+            ]
+        },
         "nulastudio.nbeauty": {
             "version": "2.1.5.0",
             "commands": [
