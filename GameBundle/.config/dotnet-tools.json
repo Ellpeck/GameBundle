@@ -7,6 +7,12 @@
             "commands": [
                 "ncbeauty"
             ]
+        },
+        "nulastudio.nbeauty": {
+            "version": "2.1.5.0",
+            "commands": [
+                "nbeauty2"
+            ]
         }
     }
 }

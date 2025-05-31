@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -85,7 +85,8 @@ internal static class Program {
                 exclude.AddRange(Program.MonoGameExclusions.Split(',').Select(s => s.Trim()));
             var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
             var log = options.Verbose ? "Detail" : "Error";
-            var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
+            var baseCommand = options.NBeauty2 ? "nbeauty2" : "ncbeauty --force=True --noflag=True";
+            var beautyResult = Program.RunProcess(options, "dotnet", $"{baseCommand} --loglevel={log} \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
             if (beautyResult != 0) {
                 Console.WriteLine("NetBeauty failed, likely because the artifact for the specified RID does not exist. See https://github.com/nulastudio/NetBeauty2/discussions/36 for more information, and run GameBundle with the --verbose option to see more details.");
                 return beautyResult;

@@ -50,6 +50,8 @@ public class Options {
     public IEnumerable<string> MacBundleIgnore { get; set; }
 
     [Option("skip-lib", HelpText = "When bundling, skip beautifying the output by moving files to the library folder")]
+    public bool NBeauty2 { get; set; }
+    [Option("nbeauty2", HelpText = "Use NetBeauty2 for beautifying instead of NetCoreBeauty")]
     public bool SkipLib { get; set; }
     [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
     public IEnumerable<string> ExcludedFiles { get; set; }
