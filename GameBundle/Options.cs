@@ -49,9 +49,9 @@ public class Options {
     [Option("mac-bundle-ignore", HelpText = "When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder")]
     public IEnumerable<string> MacBundleIgnore { get; set; }
 
-    [Option("skip-lib", HelpText = "When bundling, skip beautifying the output by moving files to the library folder")]
-    public bool NBeauty2 { get; set; }
     [Option("nbeauty2", HelpText = "Use NetBeauty2 for beautifying instead of NetCoreBeauty")]
+    public bool NBeauty2 { get; set; }
+    [Option("skip-lib", HelpText = "When bundling, skip beautifying the output by moving files to the library folder")]
     public bool SkipLib { get; set; }
     [Option('e', "exclude", HelpText = "Files that should not be moved to the library folder")]
     public IEnumerable<string> ExcludedFiles { get; set; }

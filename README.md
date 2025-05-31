@@ -27,7 +27,7 @@ GameBundle takes several optional arguments to modify the way it works. To see a
 gamebundle --help
 ```
 
-Here is a list of them as of GameBundle version 1.7.0:
+Here is a list of them as of GameBundle version 1.8.0:
 ```
   -s, --source              The location of the .csproj file that should be built and bundled. By default, the current directory is scanned for one
 
@@ -66,6 +66,8 @@ Here is a list of them as of GameBundle version 1.7.0:
   --mac-bundle-resources    (Default: Content *.icns) When creating an app bundle for mac, things that should go into the Resources folder rather than the MacOS folder
 
   --mac-bundle-ignore       When creating an app bundle for mac, things that should be left out of the mac bundle and stay in the output folder
+
+  --nbeauty2                Use NetBeauty2 for beautifying instead of NetCoreBeauty
 
   --skip-lib                When bundling, skip beautifying the output by moving files to the library folder
 
