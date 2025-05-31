@@ -16,7 +16,7 @@ To build and bundle your app for Windows, Linux and Mac, all you have to do is r
 gamebundle -wlm
 ```
 
-GameBundle will then build a self-contained release of your application for each system using `dotnet publish` and clean up the output directory using [NetCoreBeauty](https://github.com/nulastudio/NetCoreBeauty) by moving most of the libraries into a `Lib` subdirectory.
+GameBundle will then build a self-contained release of your application for each system using `dotnet publish` and clean up the output directory using [NetBeauty](https://github.com/nulastudio/NetBeauty2) by moving most of the libraries into a `Lib` subdirectory.
 
 ## Building a MonoGame Project
 If you're building a MonoGame project using MonoGame's DesktopGL version 3.8.2.1105 or later, you can additionally supply the `--mg` argument to automatically exclude MonoGame's native libraries from being moved into the `Lib` subdirectory, which is a requirement for your game to run.

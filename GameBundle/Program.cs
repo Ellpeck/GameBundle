@@ -86,8 +86,10 @@ internal static class Program {
             var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
             var log = options.Verbose ? "Detail" : "Error";
             var beautyResult = Program.RunProcess(options, "dotnet", $"ncbeauty --loglevel={log} --force=True --noflag=True \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
-            if (beautyResult != 0)
+            if (beautyResult != 0) {
+                Console.WriteLine("NetBeauty failed, likely because the artifact for the specified RID does not exist. See https://github.com/nulastudio/NetBeauty2/discussions/36 for more information, and run GameBundle with the --verbose option to see more details.");
                 return beautyResult;
+            }
         }
 
         // Add version if named builds are enabled
