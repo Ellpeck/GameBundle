@@ -42,11 +42,11 @@ internal static class Program {
             // regular builds
             new("windows", "win", options.WindowsRid, options.BuildWindows),
             new("linux", "linux", options.LinuxRid, options.BuildLinux),
-            new("mac", "mac", options.MacRid, options.BuildMac, false, d => options.MacBundle ? Program.CreateMacBundle(options, d) : 0),
+            new("mac", "mac", options.MacRid, options.BuildMac, false, d => options.MacBundle ? Program.CreateMacBundle(options, proj, d) : 0),
             // arm builds
             new("windows arm", "win-arm", options.WindowsArmRid, options.BuildWindowsArm, true),
             new("linux arm", "linux-arm", options.LinuxArmRid, options.BuildLinuxArm, true),
-            new("mac arm", "mac-arm", options.MacArmRid, options.BuildMacArm, true, d => options.MacBundle ? Program.CreateMacBundle(options, d) : 0)
+            new("mac arm", "mac-arm", options.MacArmRid, options.BuildMacArm, true, d => options.MacBundle ? Program.CreateMacBundle(options, proj, d) : 0)
         };
         foreach (var config in toBuild) {
             if (config.ShouldBuild) {
@@ -95,7 +95,7 @@ internal static class Program {
 
         // Add version if named builds are enabled
         if (options.IncludeVersion) {
-            var version = Program.GetBuildVersion(buildDir);
+            var version = Program.GetBuildVersion(options, proj);
             if (version == null) {
                 Console.WriteLine("Couldn't determine build version, aborting");
                 return -1;
@@ -106,7 +106,7 @@ internal static class Program {
 
         // Rename build folder if named builds are enabled
         if (options.NameBuilds) {
-            var name = Program.GetBuildName(buildDir);
+            var name = Program.GetBuildName(options, proj);
             if (name == null) {
                 Console.WriteLine("Couldn't determine build name, aborting");
                 return -1;
@@ -148,6 +148,21 @@ internal static class Program {
         return process.ExitCode;
     }
 
+    private static string RunProcessForOutput(Options options, string program, string args, string workingDir = "") {
+        if (options.Verbose)
+            Console.WriteLine($"> {program} {args}");
+        var info = new ProcessStartInfo(program, args) {
+            WorkingDirectory = workingDir,
+            RedirectStandardOutput = true
+        };
+        var process = Process.Start(info);
+        var output = process.StandardOutput.ReadToEnd();
+        process.WaitForExit();
+        if (options.Verbose)
+            Console.WriteLine($"{program} finished with exit code {process.ExitCode} and output {output}");
+        return process.ExitCode == 0 ? output : null;
+    }
+
     private static FileInfo GetProjectFile(Options options) {
         if (!string.IsNullOrEmpty(options.SourceFile))
             return new FileInfo(options.SourceFile);
@@ -159,8 +174,8 @@ internal static class Program {
         return null;
     }
 
-    private static int CreateMacBundle(Options options, DirectoryInfo buildDir) {
-        var buildName = Program.GetBuildName(buildDir);
+    private static int CreateMacBundle(Options options, FileInfo projectFile, DirectoryInfo buildDir) {
+        var buildName = Program.GetBuildName(options, projectFile);
         var app = buildDir.CreateSubdirectory($"{buildName}.app");
         var contents = app.CreateSubdirectory("Contents");
         var resources = contents.CreateSubdirectory("Resources");
@@ -203,35 +218,12 @@ internal static class Program {
         return new DirectoryInfo(Path.Combine(Path.GetFullPath(options.OutputDirectory), name));
     }
 
-    private static string GetBuildName(DirectoryInfo buildDir) {
-        return Path.GetFileNameWithoutExtension(Program.GetAssemblyFile(buildDir)?.Name);
+    private static string GetBuildName(Options options, FileInfo projectFile) {
+        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -getProperty:AssemblyTitle {projectFile.FullName}").Trim();
     }
 
-    private static string GetBuildVersion(DirectoryInfo buildDir) {
-        var assemblyFile = Program.GetAssemblyFile(buildDir);
-        if (assemblyFile == null)
-            return null;
-        var version = FileVersionInfo.GetVersionInfo(assemblyFile.FullName);
-        return version.ProductVersion;
-    }
-
-    private static FileInfo GetAssemblyFile(DirectoryInfo buildDir) {
-        var files = buildDir.GetFiles();
-
-        foreach (var file in files) {
-            if (file.Extension != ".dll")
-                continue;
-            // the assembly is (most likely) the dll file that has a matching binary or exe file in the same location
-            if (files.Any(f => f.Extension is ".exe" or "" && Path.GetFileNameWithoutExtension(f.Name) == Path.GetFileNameWithoutExtension(file.Name)))
-                return file;
-        }
-
-        // if we didn't find a file, try to see if there is a single exe in the directory (which will be the case with AOT builds)
-        var exes = files.Where(f => f.Extension is ".exe" or "").ToArray();
-        if (exes.Length == 1)
-            return exes[0];
-
-        return null;
+    private static string GetBuildVersion(Options options, FileInfo projectFile) {
+        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -getProperty:Version {projectFile.FullName}").Trim();
     }
 
     private static void MoveDirectory(Options options, DirectoryInfo dir, string dest) {
