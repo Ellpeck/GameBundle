@@ -6,7 +6,7 @@
         <RollForward>Major</RollForward>
         
         <Authors>Ellpeck</Authors>
-        <Description>A tool to package MonoGame and other .NET applications into several distributable formats</Description>
+        <Description>A tool to package MonoGame games and other .NET applications into several distributable formats</Description>
         <PackageTags>windows linux mac bundler build monogame build-tool release-automation mono xna netcore dotnet publish bundle tool</PackageTags>
         <PackageProjectUrl>https://github.com/Ellpeck/GameBundle</PackageProjectUrl>
         <RepositoryUrl>https://github.com/Ellpeck/GameBundle</RepositoryUrl>

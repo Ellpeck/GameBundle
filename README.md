@@ -1,6 +1,6 @@
 ![The GameBundle logo](https://raw.githubusercontent.com/Ellpeck/GameBundle/main/Banner.png)
 
-**GameBundle** is a tool to package MonoGame and other .NET applications into several distributable formats.
+**GameBundle** is a tool to package MonoGame games and other .NET applications into several distributable formats.
 
 It is currently being used for games like Ellpeck's [Tiny Life](https://tinylifegame.com) and Goblin Game Studio's [Vulcard](https://store.steampowered.com/app/3764530/Vulcard/).
 
