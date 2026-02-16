@@ -2,6 +2,8 @@
 
 **GameBundle** is a tool to package MonoGame and other .NET applications into several distributable formats.
 
+It is currently being used for games like Ellpeck's [Tiny Life](https://tinylifegame.com) and Goblin Game Studio's [Vulcard](https://store.steampowered.com/app/3764530/Vulcard/).
+
 # Installing
 GameBundle is a `dotnet` tool, meaning you can install it very easily like so:
 ```
@@ -16,7 +18,7 @@ To build and bundle your app for Windows, Linux and Mac, all you have to do is r
 gamebundle -wlm
 ```
 
-GameBundle will then build a self-contained release of your application for each system using `dotnet publish` and clean up the output directory using [NetBeauty](https://github.com/nulastudio/NetBeauty2) by moving most of the libraries into a `Lib` subdirectory.
+GameBundle will then automatically build a self-contained release of your application for each system using `dotnet publish` and clean up the output directory using [NetBeauty](https://github.com/nulastudio/NetBeauty2) by moving most of the libraries into a `Lib` subdirectory.
 
 ## Building a MonoGame Project
 If you're building a MonoGame project using MonoGame's DesktopGL version 3.8.2.1105 or later, you can additionally supply the `--mg` argument to automatically exclude MonoGame's native libraries from being moved into the `Lib` subdirectory, which is a requirement for your game to run.
@@ -27,7 +29,7 @@ GameBundle takes several optional arguments to modify the way it works. To see a
 gamebundle --help
 ```
 
-Here is a list of them as of GameBundle version 1.8.0:
+Here is a list of them as of GameBundle version 1.8.1:
 ```
   -s, --source              The location of the .csproj file that should be built and bundled. By default, the current directory is scanned for one
 
