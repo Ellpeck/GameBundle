@@ -166,7 +166,13 @@ internal static class Program {
     }
 
     private static string GetProjectProperty(Options options, FileInfo projectFile, string property) {
-        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -p:Configuration={options.BuildConfig} {string.Join(' ', options.BuildProps.Select(p => $"-p:{p}"))} -getProperty:{property} {projectFile.FullName}").Trim();
+        return Program.RunProcessForOutput(options, "dotnet", string.Join(' ', (string[]) [
+            "msbuild",
+            $"-p:Configuration={options.BuildConfig}",
+            ..options.BuildProps.Select(p => $"-p:{p}"),
+            $"-getProperty:{property}",
+            projectFile.FullName
+        ])).Trim();
     }
 
     private static FileInfo GetProjectFile(Options options) {
