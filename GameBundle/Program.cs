@@ -66,7 +66,7 @@ internal static class Program {
 
     private static int Publish(Options options, FileInfo proj, BuildConfig config) {
         var buildDir = Program.GetBuildDir(options, config.DirectoryName);
-        var publishResult = Program.RunProcess(options, "dotnet", string.Join(' ',
+        var publishResult = Program.RunProcess(options, "dotnet", string.Join(' ', (string[]) [
             $"publish \"{proj.FullName}\"",
             $"-o \"{buildDir.FullName}\"",
             $"-r {config.Rid}",
@@ -74,7 +74,9 @@ internal static class Program {
             $"-c {options.BuildConfig}",
             $"/p:PublishTrimmed={options.Trim || options.Aot}",
             $"/p:PublishAot={options.Aot}",
-            $"{options.BuildArgs}"));
+            ..options.BuildProps.Select(p => $"/p:{p}"),
+            ..options.BuildArgs
+        ]));
         if (publishResult != 0)
             return publishResult;
 
@@ -163,6 +165,10 @@ internal static class Program {
         return process.ExitCode == 0 ? output : null;
     }
 
+    private static string GetProjectProperty(Options options, FileInfo projectFile, string property) {
+        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -p:Configuration={options.BuildConfig} {string.Join(' ', options.BuildProps.Select(p => $"-p:{p}"))} -getProperty:{property} {projectFile.FullName}").Trim();
+    }
+
     private static FileInfo GetProjectFile(Options options) {
         if (!string.IsNullOrEmpty(options.SourceFile))
             return new FileInfo(options.SourceFile);
@@ -219,11 +225,11 @@ internal static class Program {
     }
 
     private static string GetBuildName(Options options, FileInfo projectFile) {
-        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -getProperty:AssemblyTitle {projectFile.FullName}").Trim();
+        return Program.GetProjectProperty(options, projectFile, "AssemblyTitle");
     }
 
     private static string GetBuildVersion(Options options, FileInfo projectFile) {
-        return Program.RunProcessForOutput(options, "dotnet", $"msbuild -getProperty:Version {projectFile.FullName}").Trim();
+        return Program.GetProjectProperty(options, projectFile, "Version");
     }
 
     private static void MoveDirectory(Options options, DirectoryInfo dir, string dest) {

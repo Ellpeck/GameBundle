@@ -67,7 +67,9 @@ public class Options {
     [Option('c', "config", Default = "Release", HelpText = "The build configuration to use")]
     public string BuildConfig { get; set; }
     [Option('a', "build-args", HelpText = "Additional arguments that should be passed to the dotnet publish command")]
-    public string BuildArgs { get; set; }
+    public IEnumerable<string> BuildArgs { get; set; }
+    [Option('p', "properties", HelpText = "Additional project properties, like Version or OutputType, that should be set or overridden, in the format Name=Value")]
+    public IEnumerable<string> BuildProps { get; set; }
     [Option('n', "name-builds", HelpText = "Name the build output directories by the name of the executable")]
     public bool NameBuilds { get; set; }
     [Option('N', "name-addition", HelpText = "An additional string of text that should be included in the names of the output directories")]
