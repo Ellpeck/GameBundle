@@ -86,7 +86,7 @@ internal static class Program {
             if (options.MonoGameExclusions)
                 exclude.AddRange(Program.MonoGameExclusions.Split(',').Select(s => s.Trim()));
             var excludeString = exclude.Count > 0 ? $"\"{string.Join(";", exclude)}\"" : "";
-            var log = options.Verbose ? "Detail" : "Error";
+            var log = options.Verbose ? "Info" : "Error"; // apparently Info is more detailed than Detail
             var baseCommand = options.NBeauty2 ? "nbeauty2" : "ncbeauty --force=True --noflag=True";
             var beautyResult = Program.RunProcess(options, "dotnet", $"{baseCommand} --loglevel={log} \"{buildDir.FullName}\" \"{options.LibFolder}\" {excludeString}", AppDomain.CurrentDomain.BaseDirectory);
             if (beautyResult != 0) {
